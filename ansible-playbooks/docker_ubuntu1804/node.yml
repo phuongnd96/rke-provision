@@ -1,0 +1,63 @@
+#################################################
+# DO Community Playbooks: Docker
+#################################################
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars/default.yml
+
+  tasks:
+    - name: Install aptitude using apt
+      apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+    - name: Install required system packages
+      apt: name={{ item }} state=latest update_cache=yes
+      loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+    - name: Adding user {{ default_ssh_user }}  
+      user: name={{ default_ssh_user }}
+        groups=docker
+        append=yes
+    - name: Create /Docker
+      become: true
+      command: mkdir /Docker
+    - name: Copy file with owner and permissions
+      become: true
+      ansible.builtin.copy:
+        src: /Users/maconline/Desktop/rke-provisioning/ansible-playbooks/files/docker.service
+        dest: /lib/systemd/system/docker.service
+        owner: root
+        group: root
+        mode: '0644'
+    # - name: Create an user dedicate for rke provisioning
+    #   user:
+    #       name: provisioner
+    #       password: "${{ default_provisioner_password | password_hash('sha512') }}"
+    #       groups: # Empty by default, here we give it some groups
+    #       - docker
+    #       - sudo
+    #       state: present
+    #       shell: /bin/bash       # Defaults to /bin/bash
+    #       system: no             # Defaults to no
+    #       createhome: yes        # Defaults to yes
+    #       # home: /home/fideloper  # Defaults to /home/<username>
+
+
+    
