@@ -33,7 +33,7 @@ key.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
-*/tmp*
-*/kube_config_cluster.yml
-*/cluster.yml
-*/cluster.rkestate
+ansible-playbooks/files/tmp*
+ansible-playbooks/files/kube_config_cluster.yml
+ansible-playbooks/files/cluster.yml
+ansible-playbooks/files/cluster.rkestate
